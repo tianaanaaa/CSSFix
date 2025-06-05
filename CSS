@@ -47,14 +47,29 @@
       margin-left: 0 !important;
     }
   }
+
+/* Remove extra white space below text inside dropdowns */
+.wForm select {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  line-height: normal !important;
+}
  
 /* ———————————————————
    4) Collapse extra bottom spacing
    ——————————————————— */
 .wForm,
 .wFormContainer {
-  margin-bottom: -10px !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
   padding-bottom: 0 !important;
+}
+
+/* Remove margin and padding directly on the <form> element */
+.wForm form {
+  margin: 0 !important;
+  padding: 0 !important;
 }
  
 /* Ensure the .actions/.wfPagingButtons containers don’t reserve any vertical space */
