@@ -1,0 +1,178 @@
+Here is my current code: <!-- ================================
+     1) Existing FormAssembly CSS
+     ================================ -->
+<style type="text/css">
+  /* ———————————————————
+     1) Existing FormAssembly rules
+     ——————————————————— */
+  .wForm .wfPagingButtons,
+  .wForm .actions {
+    width: 100% !important;
+    text-align: center;
+  }
+ 
+  input.primaryAction {
+    display: none;
+  }
+ 
+  /* ———————————————————
+     2) Read-only (calculated) fields → currency formatting prep
+     ——————————————————— */
+  .wForm input[readonly] {
+    /* keep text visible & left-aligned */
+    color: #000 !important;
+    text-align: left !important;
+ 
+    /* allow horizontal scrolling if number is long */
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+ 
+    /* ensure padding/border don’t shrink content */
+    box-sizing: border-box !important;
+    padding-left: 4px !important;
+  }
+ 
+  /* ———————————————————
+     3) Responsive: force all fields full-width on ≤1024px
+     ——————————————————— */
+  @media (max-width: 1024px) {
+    .wForm input[type="text"],
+    .wForm input[type="number"],
+    .wForm input[readonly],
+    .wForm select,
+    .wForm textarea {
+      width: 100% !important;
+      text-align: left !important;
+      box-sizing: border-box !important;
+      margin-left: 0 !important;
+    }
+  }
+ 
+/* ———————————————————
+   4) Collapse extra bottom spacing
+   ——————————————————— */
+.wForm,
+.wFormContainer {
+  margin-bottom: -10px !important;
+  padding-bottom: 0 !important;
+}
+ 
+/* Ensure the .actions/.wfPagingButtons containers don’t reserve any vertical space */
+.wForm .actions,
+.wForm .wfPagingButtons {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  height: auto !important;
+  overflow: hidden !important;
+}
+ 
+/* If there is still a hidden “Submit” wrapper taking up height, force it to zero */
+.wForm .actions .Submit,
+.wForm .wfPagingButtons .Submit {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+ 
+  /* ———————————————————
+     5) Add a “$” prefix inside each text-input box
+     ——————————————————— */
+  /* Make the immediate container of a text input position:relative */
+  .wForm .field-container-D:has(input[type="text"]) {
+    position: relative;
+  }
+  /* Insert a “$” via ::before on that container */
+  .wForm .field-container-D:has(input[type="text"])::before {
+    content: '$';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #000;
+    font-size: 1rem;
+  }
+  /* Give the text input extra left padding so the “$” doesn’t overlap */
+  .wForm .field-container-D:has(input[type="text"]) input[type="text"] {
+    padding-left: 1.5em !important;
+  }
+</style>
+ 
+<!-- =========================================
+     6) “Form Has Loaded” & Auto-Format Script
+     ========================================= -->
+<script type="text/javascript">
+  (function(){
+    // Wait until FormAssembly’s DOM is ready
+    document.addEventListener("DOMContentLoaded", function(){
+      // ——————————————————————————
+      //  A) Number formatter setup (no “$” in JS)
+      // ——————————————————————————
+      var numberFormatter = new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+ 
+      function formatAsCurrency(rawValue) {
+        // strip anything that isn't a digit, minus, or decimal point
+        var numericString = rawValue.replace(/[^0-9.\-]/g, "");
+        if (!numericString || isNaN(numericString)) {
+          return rawValue;
+        }
+        // Return numeric string with commas and exactly two decimals (no “$”)
+        return numberFormatter.format(parseFloat(numericString));
+      }
+ 
+      function applyFormattingToField(el) {
+        var original = el.value || "";
+        var formatted = formatAsCurrency(original);
+        if (formatted !== original) {
+          el.value = formatted;
+        }
+      }
+ 
+      // ——————————————————————————
+      //  B) On page load: format all readonly inputs inside .wForm
+      // ——————————————————————————
+      var readOnlyInputs = document.querySelectorAll(".wForm input[readonly]");
+      readOnlyInputs.forEach(function(inputEl){
+        applyFormattingToField(inputEl);
+ 
+        // Observe future changes to "value" attribute (for calculated fields)
+        var observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === "attributes" && mutation.attributeName === "value") {
+              applyFormattingToField(mutation.target);
+            }
+          });
+        });
+        observer.observe(inputEl, {
+          attributes: true,
+          attributeFilter: ["value"]
+        });
+      });
+ 
+      // ——————————————————————————
+      //  C) On blur: format any text/number inputs inside .wForm
+      // ——————————————————————————
+      var allInputs = document.querySelectorAll(".wForm input[type='text'], .wForm input[type='number']");
+      allInputs.forEach(function(inputEl) {
+        inputEl.addEventListener("blur", function(){
+          applyFormattingToField(this);
+        });
+      });
+ 
+      // ——————————————————————————
+      //  D) Hide any element with class="Submit" (if desired)
+      // ——————————————————————————
+      var submitEls = document.querySelectorAll(".Submit");
+      submitEls.forEach(function(subEl){
+        subEl.style.display = "none";
+      });
+    });
+  })();
+</script>
