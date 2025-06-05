@@ -1,4 +1,4 @@
-Here is my current code: <!-- ================================
+<!-- ================================
      1) Existing FormAssembly CSS
      ================================ -->
 <style type="text/css">
@@ -60,12 +60,23 @@ Here is my current code: <!-- ================================
 /* Ensure the .actions/.wfPagingButtons containers don’t reserve any vertical space */
 .wForm .actions,
 .wForm .wfPagingButtons {
-  margin-top: 0 !important;
+  margin-top: 20 !important;
   margin-bottom: 0 !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
   height: auto !important;
   overflow: hidden !important;
+}
+ 
+.wform select {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: normal !important;
+  }
+ 
+.wForm form {
+  margin: 0 !important;
+  padding: 0 !important;
 }
  
 /* If there is still a hidden “Submit” wrapper taking up height, force it to zero */
